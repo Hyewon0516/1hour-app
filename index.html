@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카카오 로그인 사이트</title>
+    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            max-width: 400px;
+            width: 100%;
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .logo {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .login-section {
+            margin-bottom: 30px;
+        }
+        
+        .kakao-login-btn {
+            background: #FEE500;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            color: #000;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+        
+        .kakao-login-btn:hover {
+            background: #FFDD00;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(254, 229, 0, 0.4);
+        }
+        
+        .user-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: block;
+        }
+        
+        .user-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .user-email {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: #c82333;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .demo-note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #856404;
+        }
+        
+        .demo-note strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🚀</div>
+        <h1 class="title">카카오 로그인 사이트</h1>
+        <p class="subtitle">1시간 만에 완성된 사이트입니다</p>
+        
+        <div class="login-section" id="loginSection">
+            <button class="kakao-login-btn" onclick="kakaoLogin()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 3c5.799 0 10.5 3.664 10.5 8.185c0 4.52-4.701 8.184-10.5 8.184a13.5 13.5 0 0 1-1.727-.11l-4.408 2.883c-.501.265-.678.236-.472-.413l.892-3.678c-2.88-1.46-4.785-3.99-4.785-6.866C1.5 6.665 6.201 3 12 3"/>
+                </svg>
+                카카오톡으로 로그인
+            </button>
+            
+            <div class="demo-note">
+                <strong>⚠️ 데모 모드</strong>
+                실제 카카오 키를 설정하면 진짜 로그인이 가능합니다.
+            </div>
+        </div>
+        
+        <div class="user-info" id="userInfo">
+            <img class="user-avatar" id="userAvatar" src="" alt="프로필">
+            <div class="user-name" id="userName">사용자</div>
+            <div class="user-email" id="userEmail">user@example.com</div>
+            <button class="logout-btn" onclick="kakaoLogout()">로그아웃</button>
+        </div>
+        
+        <div id="statusArea"></div>
+    </div>
+
+    <script>
+        // 카카오 SDK 초기화 (실제 JavaScript 키로 교체 필요)
+        const KAKAO_JS_KEY = 'YOUR_KAKAO_JAVASCRIPT_KEY'; // 여기에 실제 키 입력
+        
+        // 현재 카카오 SDK 로드 상태 확인
+        if (typeof Kakao !== 'undefined') {
+            try {
+                Kakao.init(KAKAO_JS_KEY);
+                console.log('카카오 SDK 초기화 완료');
+            } catch (error) {
+                console.log('카카오 키 설정 필요:', error);
+            }
+        }
+        
+        let currentUser = null;
+        
+        // 페이지 로드 시 로그인 상태 확인
+        window.onload = function() {
+            if (typeof Kakao !== 'undefined' && Kakao.Auth && Kakao.Auth.getAccessToken()) {
+                getUserInfo();
+            }
+        };
+        
+        // 카카오 로그인
+        function kakaoLogin() {
+            if (typeof Kakao === 'undefined' || KAKAO_JS_KEY === 'YOUR_KAKAO_JAVASCRIPT_KEY') {
+                // 데모 모드
+                showStatus('데모 모드: 실제 카카오 키를 설정해주세요', 'error');
+                demoLogin();
+                return;
+            }
+            
+            Kakao.Auth.login({
+                success: function(authObj) {
+                    console.log('로그인 성공', authObj);
+                    getUserInfo();
+                },
+                fail: function(err) {
+                    console.error('로그인 실패', err);
+                    showStatus('로그인에 실패했습니다', 'error');
+                }
+            });
+        }
+        
+        // 사용자 정보 가져오기
+        function getUserInfo() {
+            if (typeof Kakao === 'undefined' || !Kakao.API) {
+                return;
+            }
+            
+            Kakao.API.request({
+                url: '/v2/user/me',
+                success: function(res) {
+                    console.log('사용자 정보', res);
+                    currentUser = {
+                        id: res.id,
+                        nickname: res.kakao_account.profile.nickname,
+                        email: res.kakao_account.email || '이메일 없음',
+                        profileImage: res.kakao_account.profile.profile_image_url
+                    };
+                    showUserInfo();
+                    showStatus('로그인 성공!', 'success');
+                },
+                fail: function(err) {
+                    console.error('사용자 정보 가져오기 실패', err);
+                    showStatus('사용자 정보를 가져올 수 없습니다', 'error');
+                }
+            });
+        }
+        
+        // 데모 로그인 (실제 카카오 키 없을 때)
+        function demoLogin() {
+            currentUser = {
+                id: 'demo_' + Date.now(),
+                nickname: '데모 사용자',
+                email: 'demo@example.com',
+                profileImage: 'https://via.placeholder.com/60/667eea/ffffff?text=👤'
+            };
+            
+            setTimeout(() => {
+                showUserInfo();
+                showStatus('데모 로그인 완료 (실제 카카오 키 설정 필요)', 'success');
+            }, 1000);
+        }
+        
+        // 사용자 정보 표시
+        function showUserInfo() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'block';
+            
+            document.getElementById('userName').textContent = currentUser.nickname;
+            document.getElementById('userEmail').textContent = currentUser.email;
+            document.getElementById('userAvatar').src = currentUser.profileImage || 'https://via.placeholder.com/60/667eea/ffffff?text=👤';
+        }
+        
+        // 로그아웃
+        function kakaoLogout() {
+            if (typeof Kakao !== 'undefined' && Kakao.Auth && Kakao.Auth.getAccessToken()) {
+                Kakao.Auth.logout(function() {
+                    console.log('로그아웃 완료');
+                });
+            }
+            
+            currentUser = null;
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('userInfo').style.display = 'none';
+            showStatus('로그아웃 되었습니다', 'success');
+        }
+        
+        // 상태 메시지 표시
+        function showStatus(message, type) {
+            const statusArea = document.getElementById('statusArea');
+            statusArea.innerHTML = `<div class="status ${type}">${message}</div>`;
+            
+            setTimeout(() => {
+                statusArea.innerHTML = '';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
