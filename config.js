@@ -12,6 +12,17 @@ function getKakaoKey() {
     return CONFIG.KAKAO_JS_KEY;
 }
 
+// 리다이렉트 URI를 가져오는 함수 (동적으로 현재 페이지 URL 사용)
+function getRedirectUri() {
+    // 환경 변수가 설정되어 있으면 사용
+    if (typeof process !== 'undefined' && process.env && process.env.REDIRECT_URI) {
+        return process.env.REDIRECT_URI;
+    }
+    
+    // 현재 페이지의 URL을 사용 (어떤 도메인에서든 작동)
+    return window.location.origin + window.location.pathname;
+}
+
 // 키 유효성 검사
 function validateKakaoKey() {
     const key = getKakaoKey();
