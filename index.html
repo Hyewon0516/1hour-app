@@ -1,131 +1,107 @@
+<!-- index.html -->
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="kr">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>카카오 로그인</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="config.js"></script>
-    <!-- 카카오 SDK 최신 버전으로 업데이트 -->
-    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.5/kakao.min.js" integrity="sha384-dok87au0gKqJdxs7msEdBPNnKSRT+/mhTVzq+qOhcL464zXwvcrpjeWvyj1kCdq6" crossorigin="anonymous"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Kakao REST-API Node.js example</title>
+  <!-- 카카오 JavaScript SDK를 불러오기 위한 스크립트 -->
+  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+  <!-- UI 스타일을 설정하는 CSS 파일 임포트 -->
+  <link rel="stylesheet" href="https://kakao-tam.github.io/developers-static/style.css" />
+  <link rel="icon" type="image/png"
+    href="https://devtalk.kakao.com/uploads/default/optimized/2X/9/9b7b5d9cbbe2e8d6a5410c2d28926804cd8b0bb1_2_32x32.png" />
 </head>
+
 <body>
+  <div class="header">
+    <h1>카카오 로그인 및 API 예제</h1>
+  </div>
+  <div class="main-container">
     <div class="container">
-        <div class="logo">🎯</div>
-        <h1 class="title">카카오 로그인</h1>
-        <p class="subtitle">간단하고 안전한 카카오 로그인</p>
-        
-        <!-- 로그인 섹션 -->
-        <div class="login-section" id="loginSection">
-            <!-- 공식 카카오 로그인 버튼 -->
-            <div class="official-login-section">
-                <p class="section-title">카카오 로그인</p>
-                <a id="kakao-login-btn" href="javascript:loginWithKakao()">
-                    <img src="https://k.kakaocdn.net/14/dn/btroDszwNrM/I6efHub1SN5KCJqLm1Ovx1/o.jpg" width="222" alt="카카오 로그인 버튼" />
-                </a>
-                <p id="token-result" class="token-info"></p>
-                <button class="api-btn" onclick="requestUserInfo()" style="visibility:hidden">사용자 정보 가져오기</button>
-            </div>
-        </div>
-        
-        <!-- 사용자 정보 섹션 -->
-        <div class="user-info" id="userInfo" style="display: none;">
-            <img class="user-avatar" id="userAvatar" src="" alt="프로필">
-            <div class="user-name" id="userName">사용자</div>
-            <div class="user-email" id="userEmail">이메일</div>
-            <button class="logout-btn" onclick="kakaoLogout()">로그아웃</button>
-        </div>
-        
-        <div id="statusArea"></div>
-    </div>
+      <div class="vertical-layout">
+        <script>
+          const domain = window.location.origin;
+          Kakao.init(" JavaScript 키 "); // [JavaScript SDK로 로그인]을 테스트하려면 [앱 키]에서 확인한 JavaScript 키를 입력하세요.
 
-    <script>
-        // 카카오 SDK 초기화
-        Kakao.init(CONFIG.KAKAO_JS_KEY);
-        
-        function loginWithKakao() {
+          function kakaoLogin() {
             Kakao.Auth.authorize({
-                redirectUri: getRedirectUri(),
-                state: 'userme',
+              redirectUri: `${domain}/redirect`,
             });
-        }
+          }
 
-        function requestUserInfo() {
-            Kakao.API.request({
-                url: '/v2/user/me',
-            })
-                .then(function(res) {
-                    console.log('사용자 정보:', res);
-                    displayUserInfo(res);
-                })
-                .catch(function(err) {
-                    console.error('사용자 정보 요청 실패:', err);
-                    alert('failed to request user information: ' + JSON.stringify(err));
-                });
-        }
-
-        // 사용자 정보 표시
-        function displayUserInfo(userData) {
-            const userInfo = document.getElementById('userInfo');
-            const loginSection = document.getElementById('loginSection');
-            
-            if (userInfo) userInfo.style.display = 'block';
-            if (loginSection) loginSection.style.display = 'none';
-            
-            const userName = document.getElementById('userName');
-            const userEmail = document.getElementById('userEmail');
-            const userAvatar = document.getElementById('userAvatar');
-            
-            if (userName) userName.textContent = userData.kakao_account?.profile?.nickname || '이름 없음';
-            if (userEmail) userEmail.textContent = userData.kakao_account?.email || '이메일 정보 없음';
-            
-            if (userAvatar) {
-                if (userData.kakao_account?.profile?.profile_image_url) {
-                    userAvatar.src = userData.kakao_account.profile.profile_image_url;
-                } else {
-                    userAvatar.src = generateDefaultAvatar(userData.kakao_account?.profile?.nickname || '사용자');
+          function REST_Call(path) {
+            fetch(domain + path)
+              .then(response => response.text()) // 응답을 텍스트로 변환
+              .then(data => {
+                try {
+                  // JSON 파싱 시도
+                  const jsonData = JSON.parse(data);
+                  setContents(JSON.stringify(jsonData, null, 2));
+                } catch (e) {
+                  // JSON 파싱 실패 시 텍스트로 출력
+                  setContents(data);
                 }
+              })
+              .catch(error => {
+                console.error("Fetch 에러:", error);
+              });
+          }
+
+          function setContents(data) {
+            document.getElementById("contents").value = data;
+          }
+          // 로그인 성공 메시지 표시
+          window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('login') === 'success') {
+              const successLabel = document.createElement('span');
+              successLabel.textContent = '로그인 성공';
+              successLabel.style.color = 'green';
+              successLabel.style.marginLeft = '10px';
+              document.querySelector('.login-buttons').appendChild(successLabel);
             }
-        }
-
-        // 기본 아바타 생성
-        function generateDefaultAvatar(name) {
-            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'];
-            const color = colors[name.length % colors.length];
-            return `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="${color}"/><text x="50" y="60" text-anchor="middle" font-size="30" fill="white">${name.charAt(0).toUpperCase()}</text></svg>`;
-        }
-
-        // 로그아웃
-        function kakaoLogout() {
-            Kakao.Auth.logout(() => {
-                console.log('로그아웃 완료');
-                const userInfo = document.getElementById('userInfo');
-                const loginSection = document.getElementById('loginSection');
-                
-                if (userInfo) userInfo.style.display = 'none';
-                if (loginSection) loginSection.style.display = 'block';
-                
-                document.getElementById('token-result').innerText = '';
-                document.querySelector('.api-btn').style.visibility = 'hidden';
-            });
-        }
-
-        // 아래는 데모를 위한 UI 코드입니다.
-        displayToken()
-        function displayToken() {
-            var token = getCookie('authorize-access-token');
-
-            if(token) {
-                Kakao.Auth.setAccessToken(token);
-                document.querySelector('#token-result').innerText = 'login success, ready to request API';
-                document.querySelector('button.api-btn').style.visibility = 'visible';
-            }
-        }
-
-        function getCookie(name) {
-            var parts = document.cookie.split(name + '=');
-            if (parts.length === 2) { return parts[1].split(';')[0]; }
-        }
-    </script>
+          }
+        </script>
+        <!-- 로그인 버튼 영역 -->
+        <div class="login-container">
+          <div class="login-buttons">
+            <!-- REST API로 로그인하기 위한 버튼 -->
+            <a href="/authorize">
+              <img src="//k.kakaocdn.net/14/dn/btqCn0WEmI3/nijroPfbpCa4at5EIsjyf0/o.jpg" alt="카카오 로그인" />
+            </a>
+            <!-- JavaScript SDK로 로그인하기 위한 버튼, 테스트하려면 JS SDK 초기화 필요 -->
+            <button onclick="kakaoLogin()" style="
+                  background-color: white;
+                  border: 1px solid var(--kakao-yellow);
+                ">
+              JavaScript SDK로 로그인
+            </button>            
+          </div>
+        </div>        
+        <!-- 로그인 기능을 테스트할 수 있는 버튼 영역 -->
+        <div class="api-container">
+          <div class="section-title">기본 기능</div>
+          <div class="button-group">
+            <button onclick="REST_Call('/profile')">사용자 정보 조회</button>
+            <button onclick="REST_Call('/logout')" style="background-color: white; border: 1px solid #e5e5e5">
+              로그아웃
+            </button>
+            <button onclick="REST_Call('/unlink')" style="
+                  background-color: white;
+                  color: #ff5c5c;
+                  border: 1px solid #ff5c5c;
+                ">
+              연결 해제
+            </button>
+          </div>
+        </div>
+        <!-- 응답 확인 영역 -->
+        <textarea id="contents" placeholder="이곳에 API 응답 결과가 표시됩니다."></textarea>
+      </div>
+    </div>
+  </div>
 </body>
+
 </html>

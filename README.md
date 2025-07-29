@@ -1,56 +1,65 @@
-# 1Hour App - 카카오 로그인
+# 1Hour App - Node.js 카카오 로그인
 
-간단하고 안전한 카카오 로그인을 제공하는 웹 애플리케이션입니다.
+Express.js 기반의 카카오 로그인을 지원하는 Node.js 웹 애플리케이션입니다.
 
 ## 🎯 프로젝트 개요
 
-이 프로젝트는 카카오 SDK를 사용하여 사용자 인증을 구현한 웹 애플리케이션입니다. 모던한 UI/UX와 함께 안전하고 간편한 로그인 경험을 제공합니다.
+이 프로젝트는 Node.js와 Express.js를 사용하여 카카오 OAuth 인증을 구현한 웹 애플리케이션입니다. 서버 사이드 렌더링과 세션 관리를 통해 안전하고 확장 가능한 로그인 시스템을 제공합니다.
 
 ## ✨ 주요 기능
 
-- **카카오 로그인**: 카카오 SDK를 통한 안전한 OAuth 인증
-- **사용자 정보 표시**: 프로필 이미지, 이름, 이메일, 사용자 ID 표시
-- **세션 관리**: 로그인 상태 유지 및 자동 세션 확인
-- **반응형 디자인**: 모바일과 데스크톱에서 최적화된 UI
-- **실시간 상태 표시**: 로그인 진행 상황 및 오류 메시지 표시
-- **로그아웃 기능**: 안전한 세션 종료
+- **서버 사이드 인증**: 카카오 OAuth를 서버에서 안전하게 처리
+- **세션 관리**: Express Session을 통한 안전한 세션 관리
+- **RESTful API**: 사용자 정보 조회 및 인증 상태 확인 API
+- **모던 UI/UX**: 반응형 디자인과 부드러운 애니메이션
+- **보안 강화**: Helmet.js를 통한 보안 헤더 설정
+- **환경 변수 관리**: dotenv를 통한 안전한 설정 관리
 
 ## 🚀 시작하기
 
 ### 필수 요구사항
 
-- 웹 브라우저 (Chrome, Firefox, Safari, Edge)
+- Node.js 16.0.0 이상
+- npm 또는 yarn
 - 카카오 개발자 계정
-- 카카오 JavaScript 키
+- 카카오 JavaScript 키 및 Client Secret
 
 ### 설치 및 설정
 
-1. **프로젝트 클론**
+1. **의존성 설치**
    ```bash
-   git clone [repository-url]
-   cd 1hour-app
+   npm install
    ```
 
-2. **카카오 개발자 설정**
+2. **환경 변수 설정**
+   ```bash
+   cp env.example .env
+   ```
+   
+   `.env` 파일을 편집하여 카카오 설정을 입력하세요:
+   ```env
+   PORT=8989
+   NODE_ENV=development
+   KAKAO_JS_KEY=your_kakao_javascript_key_here
+   KAKAO_CLIENT_ID=your_kakao_client_id_here
+   KAKAO_CLIENT_SECRET=your_kakao_client_secret_here
+   KAKAO_REDIRECT_URI=http://localhost:8989/auth/kakao/callback
+   SESSION_SECRET=your_session_secret_here
+   ```
+
+3. **카카오 개발자 설정**
    - [Kakao Developers](https://developers.kakao.com)에서 애플리케이션 생성
-   - JavaScript 키 발급
-   - 플랫폼 설정에서 도메인 등록
-
-3. **환경 설정**
-   - `config.js` 파일에서 카카오 JavaScript 키 설정:
-   ```javascript
-   const CONFIG = {
-       KAKAO_JS_KEY: 'your_kakao_javascript_key_here'
-   };
-   ```
+   - JavaScript 키 및 Client Secret 발급
+   - 플랫폼 설정에서 도메인 등록: `http://localhost:8989`
+   - Redirect URI 등록: `http://localhost:8989/auth/kakao/callback`
 
 4. **개발 서버 실행**
    ```bash
-   # Python 3를 사용한 간단한 HTTP 서버
-   python3 -m http.server 8989
+   # 개발 모드 (nodemon 사용)
+   npm run dev
    
-   # 또는 Node.js를 사용한 경우
-   npx http-server -p 8989
+   # 프로덕션 모드
+   npm start
    ```
 
 5. **브라우저에서 접속**
@@ -62,103 +71,138 @@
 
 ```
 1hour-app/
-├── index.html          # 메인 HTML 파일
-├── styles.css          # 스타일시트
-├── script.js           # JavaScript 로직
-├── config.js           # 설정 파일
-├── kakao.min.js       # 카카오 SDK (CDN 사용)
-└── README.md          # 프로젝트 문서
+├── server.js              # Express 서버 메인 파일
+├── package.json           # 프로젝트 설정 및 의존성
+├── env.example           # 환경 변수 예시
+├── routes/               # 라우트 파일들
+│   ├── auth.js          # 인증 관련 라우트
+│   └── api.js           # API 엔드포인트
+├── public/               # 정적 파일들
+│   ├── index.html       # 메인 HTML 파일
+│   ├── css/             # 스타일시트
+│   │   └── styles.css   # 메인 CSS
+│   ├── js/              # 클라이언트 JavaScript
+│   │   ├── app.js       # 메인 애플리케이션 로직
+│   │   └── config.js    # 설정 파일
+│   └── images/          # 이미지 파일들
+└── README.md            # 프로젝트 문서
 ```
 
 ## 🔧 주요 파일 설명
 
-### `index.html`
-- 메인 HTML 구조
-- 카카오 SDK CDN 포함
-- 반응형 레이아웃
+### `server.js`
+- Express.js 서버 설정
+- 미들웨어 구성 (Helmet, CORS, Compression)
+- 세션 설정
+- 라우트 등록
 
-### `styles.css`
-- 모던한 UI 디자인
-- 애니메이션 효과
-- 반응형 스타일링
+### `routes/auth.js`
+- 카카오 OAuth 인증 처리
+- 액세스 토큰 발급
+- 사용자 정보 조회
+- 세션 관리
 
-### `script.js`
+### `routes/api.js`
+- RESTful API 엔드포인트
+- 사용자 정보 조회
+- 인증 상태 확인
+- 서버 상태 확인
+
+### `public/js/app.js`
+- 클라이언트 사이드 애플리케이션 로직
 - 카카오 SDK 초기화
-- 로그인/로그아웃 로직
-- 사용자 정보 관리
-- 세션 상태 확인
-
-### `config.js`
-- 카카오 JavaScript 키 설정
-- 환경 변수 지원
-- 키 유효성 검사
+- UI 상태 관리
+- API 통신
 
 ## 🎨 UI/UX 특징
 
-- **깔끔한 디자인**: 모던하고 직관적인 인터페이스
-- **부드러운 애니메이션**: 사용자 경험을 향상시키는 전환 효과
-- **상태 피드백**: 로딩 상태와 오류 메시지 표시
-- **반응형 레이아웃**: 모든 디바이스에서 최적화된 표시
+- **모던한 디자인**: 깔끔하고 직관적인 인터페이스
+- **반응형 레이아웃**: 모든 디바이스에서 최적화
+- **부드러운 애니메이션**: 사용자 경험 향상
+- **상태 피드백**: 실시간 로딩 및 오류 메시지
 
 ## 🔒 보안 고려사항
 
-- 카카오 OAuth 2.0 인증 사용
-- 클라이언트 사이드에서 안전한 토큰 관리
-- HTTPS 환경에서 사용 권장
+- **서버 사이드 인증**: 클라이언트에서 직접 토큰 처리하지 않음
+- **세션 보안**: HttpOnly 쿠키와 세션 시크릿 사용
+- **보안 헤더**: Helmet.js를 통한 보안 헤더 설정
+- **환경 변수**: 민감한 정보를 환경 변수로 관리
 
 ## 🛠️ 개발 환경 설정
 
-### 로컬 개발 서버 실행
-
+### 개발 모드 실행
 ```bash
-# Python 3 사용
-python3 -m http.server 8989
-
-# Node.js 사용
-npx http-server -p 8989
-
-# PHP 사용
-php -S localhost:8989
+npm run dev
 ```
 
-### 브라우저 지원
+### 프로덕션 모드 실행
+```bash
+npm start
+```
 
-- Chrome 60+
-- Firefox 55+
-- Safari 12+
-- Edge 79+
+### 포트 변경
+환경 변수 `PORT`를 설정하거나 `.env` 파일에서 수정:
+```env
+PORT=3000
+```
 
-## 📝 사용법
+## 📝 API 문서
 
-1. **로그인**
-   - "카카오 로그인" 버튼 클릭
-   - 카카오 계정으로 인증
-   - 권한 승인
+### 인증 관련 API
 
-2. **사용자 정보 확인**
-   - 로그인 후 프로필 정보 자동 표시
-   - 새로고침 버튼으로 정보 업데이트
+#### `GET /auth/kakao`
+카카오 로그인 시작
+- **응답**: 카카오 인증 페이지로 리다이렉트
 
-3. **로그아웃**
-   - "로그아웃" 버튼 클릭
-   - 세션 종료 및 초기 화면으로 복귀
+#### `GET /auth/kakao/callback`
+카카오 로그인 콜백 처리
+- **파라미터**: `code` (인증 코드)
+- **응답**: 메인 페이지로 리다이렉트
+
+#### `GET /auth/logout`
+로그아웃
+- **응답**: 메인 페이지로 리다이렉트
+
+#### `GET /auth/user`
+현재 사용자 정보 조회
+- **응답**: JSON 형태의 사용자 정보
+
+### 일반 API
+
+#### `GET /api/auth/status`
+인증 상태 확인
+- **응답**: `{ isLoggedIn: boolean, user: object }`
+
+#### `GET /api/user`
+사용자 정보 조회
+- **응답**: `{ success: boolean, user: object }`
+
+#### `GET /api/health`
+서버 상태 확인
+- **응답**: `{ status: string, timestamp: string, uptime: number }`
 
 ## 🐛 문제 해결
 
 ### 일반적인 문제들
 
-1. **SDK 로딩 실패**
-   - 인터넷 연결 확인
-   - 브라우저 콘솔에서 오류 메시지 확인
-   - 페이지 새로고침
+1. **의존성 설치 실패**
+   ```bash
+   rm -rf node_modules package-lock.json
+   npm install
+   ```
 
-2. **로그인 버튼 비활성화**
-   - 카카오 JavaScript 키 설정 확인
-   - 개발자 도구에서 네트워크 오류 확인
+2. **포트 충돌**
+   - `.env` 파일에서 `PORT` 변경
+   - 또는 다른 포트 사용: `PORT=3000 npm start`
 
-3. **사용자 정보 표시 안됨**
-   - 카카오 개발자 콘솔에서 앱 설정 확인
-   - 도메인 등록 상태 확인
+3. **카카오 로그인 실패**
+   - 카카오 개발자 콘솔에서 설정 확인
+   - Redirect URI 등록 확인
+   - JavaScript 키와 Client Secret 확인
+
+4. **세션 문제**
+   - `SESSION_SECRET` 환경 변수 확인
+   - 브라우저 쿠키 설정 확인
 
 ## 🤝 기여하기
 
@@ -179,5 +223,5 @@ php -S localhost:8989
 ---
 
 **개발자**: 1Hour App Team  
-**버전**: 1.0.0  
+**버전**: 2.0.0 (Node.js)  
 **최종 업데이트**: 2024년 
