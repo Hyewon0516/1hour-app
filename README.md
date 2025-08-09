@@ -43,7 +43,7 @@ Express.js 기반의 카카오 로그인을 지원하는 Node.js 웹 애플리�
    KAKAO_JS_KEY=your_kakao_javascript_key_here
    KAKAO_CLIENT_ID=your_kakao_client_id_here
    KAKAO_CLIENT_SECRET=your_kakao_client_secret_here
-   KAKAO_REDIRECT_URI=http://localhost:8989/auth/kakao/callback
+   KAKAO_REDIRECT_URI=http://localhost:8989/redirect
    SESSION_SECRET=your_session_secret_here
    ```
 
@@ -51,7 +51,7 @@ Express.js 기반의 카카오 로그인을 지원하는 Node.js 웹 애플리�
    - [Kakao Developers](https://developers.kakao.com)에서 애플리케이션 생성
    - JavaScript 키 및 Client Secret 발급
    - 플랫폼 설정에서 도메인 등록: `http://localhost:8989`
-   - Redirect URI 등록: `http://localhost:8989/auth/kakao/callback`
+   - Redirect URI 등록: `http://localhost:8989/redirect`
 
 4. **개발 서버 실행**
    ```bash
@@ -71,48 +71,27 @@ Express.js 기반의 카카오 로그인을 지원하는 Node.js 웹 애플리�
 
 ```
 1hour-app/
-├── server.js              # Express 서버 메인 파일
-├── package.json           # 프로젝트 설정 및 의존성
-├── env.example           # 환경 변수 예시
-├── routes/               # 라우트 파일들
-│   ├── auth.js          # 인증 관련 라우트
-│   └── api.js           # API 엔드포인트
-├── public/               # 정적 파일들
-│   ├── index.html       # 메인 HTML 파일
-│   ├── css/             # 스타일시트
-│   │   └── styles.css   # 메인 CSS
-│   ├── js/              # 클라이언트 JavaScript
-│   │   ├── app.js       # 메인 애플리케이션 로직
-│   │   └── config.js    # 설정 파일
-│   └── images/          # 이미지 파일들
-└── README.md            # 프로젝트 문서
+├── app.js                # Express 서버 메인 파일
+├── index.html           # 메인 HTML 파일 (정적 파일)
+├── package.json         # 프로젝트 설정 및 의존성
+├── env.example         # 환경 변수 예시
+├── backup/             # 백업 파일들
+└── README.md           # 프로젝트 문서
 ```
 
 ## 🔧 주요 파일 설명
 
-### `server.js`
-- Express.js 서버 설정
-- 미들웨어 구성 (Helmet, CORS, Compression)
-- 세션 설정
-- 라우트 등록
-
-### `routes/auth.js`
+### `app.js`
+- Express.js 서버 설정 및 메인 파일
 - 카카오 OAuth 인증 처리
-- 액세스 토큰 발급
-- 사용자 정보 조회
-- 세션 관리
+- 액세스 토큰 발급 및 사용자 정보 조회
+- 세션 관리 및 API 엔드포인트
 
-### `routes/api.js`
-- RESTful API 엔드포인트
-- 사용자 정보 조회
-- 인증 상태 확인
-- 서버 상태 확인
-
-### `public/js/app.js`
-- 클라이언트 사이드 애플리케이션 로직
-- 카카오 SDK 초기화
-- UI 상태 관리
-- API 통신
+### `index.html`
+- 메인 HTML 파일
+- 클라이언트 사이드 JavaScript 포함
+- 카카오 SDK 초기화 및 UI 로직
+- API 통신 및 상태 관리
 
 ## 🎨 UI/UX 특징
 
@@ -150,36 +129,26 @@ PORT=3000
 
 ### 인증 관련 API
 
-#### `GET /auth/kakao`
+#### `GET /authorize`
 카카오 로그인 시작
 - **응답**: 카카오 인증 페이지로 리다이렉트
 
-#### `GET /auth/kakao/callback`
+#### `GET /redirect`
 카카오 로그인 콜백 처리
 - **파라미터**: `code` (인증 코드)
 - **응답**: 메인 페이지로 리다이렉트
 
-#### `GET /auth/logout`
-로그아웃
-- **응답**: 메인 페이지로 리다이렉트
-
-#### `GET /auth/user`
+#### `GET /profile`
 현재 사용자 정보 조회
 - **응답**: JSON 형태의 사용자 정보
 
-### 일반 API
+#### `GET /logout`
+로그아웃
+- **응답**: JSON 형태의 로그아웃 결과
 
-#### `GET /api/auth/status`
-인증 상태 확인
-- **응답**: `{ isLoggedIn: boolean, user: object }`
-
-#### `GET /api/user`
-사용자 정보 조회
-- **응답**: `{ success: boolean, user: object }`
-
-#### `GET /api/health`
-서버 상태 확인
-- **응답**: `{ status: string, timestamp: string, uptime: number }`
+#### `GET /unlink`
+연결 해제
+- **응답**: JSON 형태의 연결 해제 결과
 
 ## 🐛 문제 해결
 

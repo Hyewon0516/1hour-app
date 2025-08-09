@@ -2,10 +2,10 @@
   "name": "1hour-app",
   "version": "1.0.0",
   "description": "카카오 로그인을 지원하는 Node.js 웹 애플리케이션",
-  "main": "server.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
