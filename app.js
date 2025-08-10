@@ -11,20 +11,35 @@ const express = require("express");
 const session = require("express-session");
 const qs = require("qs");
 const axios = require("axios");
+const cors = require("cors");
+const helmet = require("helmet");
+const compression = require("compression");
+require("dotenv").config();
+
 const app = express();
-const port = 8989;
+const port = process.env.PORT || 8989;
+
+// 보안 및 성능 미들웨어
+app.use(helmet());
+app.use(compression());
+app.use(cors());
 
 // 정적 파일 서빙 설정 추가
 app.use(express.static(__dirname));
 app.use(express.json()); // JSON 파싱을 위해 추가
+app.use(express.urlencoded({ extended: true }));
 
 // 로그인 상태 유지를 위한 세션 설정
 app.use(
   session({
-    secret: "your session secret",
+    secret: process.env.SESSION_SECRET || "your session secret",
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false },
+    cookie: { 
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000 // 24시간
+    },
   })
 );
 
@@ -85,8 +100,8 @@ app.get("/redirect", async function (req, res) {
   // 발급받은 액세스 토큰을 세션에 저장 (로그인 상태 유지 목적)
   req.session.key = rtn.access_token;
 
-  // 로그인 완료 후 메인 페이지로 이동
-  res.status(302).redirect(`${domain}/index.html?login=success`);
+  // 로그인 완료 후 kakao.html 페이지로 이동 (기존: index.html)
+  res.status(302).redirect(`${domain}/kakao.html?login=success`);
 });
 
 // 액세스 토큰을 사용해 로그인한 사용자의 정보 조회 요청
